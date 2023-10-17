@@ -718,8 +718,11 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 	 * @param	bool	$escape
 	 * @return	CI_DB_query_builder
 	 */
-	public function where_in($key, array $values, $escape = NULL)
+	public function where_in($key, $values, $escape = NULL)
 	{
+        if (!is_array($values)){
+            $values = array($values);
+        }
 		return $this->_wh_in('qb_where', $key, $values, FALSE, 'AND ', $escape);
 	}
 
@@ -732,12 +735,15 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 	 * joined with 'OR' if appropriate.
 	 *
 	 * @param	string	$key	The field to search
-	 * @param	array	$values	The values searched on
+	 * @param	mixed	$values	The values searched on
 	 * @param	bool	$escape
 	 * @return	CI_DB_query_builder
 	 */
-	public function or_where_in($key, array $values, $escape = NULL)
+	public function or_where_in($key, $values, $escape = NULL)
 	{
+        if (!is_array($values)){
+            $values = array($values);
+        }
 		return $this->_wh_in('qb_where', $key, $values, FALSE, 'OR ', $escape);
 	}
 
@@ -750,12 +756,15 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 	 * joined with 'AND' if appropriate.
 	 *
 	 * @param	string	$key	The field to search
-	 * @param	array	$values	The values searched on
+	 * @param	mixed	$values	The values searched on
 	 * @param	bool	$escape
 	 * @return	CI_DB_query_builder
 	 */
-	public function where_not_in($key, array $values, $escape = NULL)
+	public function where_not_in($key, $values, $escape = NULL)
 	{
+        if (!is_array($values)){
+            $values = array($values);
+        }
 		return $this->_wh_in('qb_where', $key, $values, TRUE, 'AND ', $escape);
 	}
 
@@ -768,12 +777,15 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 	 * joined with 'OR' if appropriate.
 	 *
 	 * @param	string	$key	The field to search
-	 * @param	array	$values	The values searched on
+	 * @param	mixed	$values	The values searched on
 	 * @param	bool	$escape
 	 * @return	CI_DB_query_builder
 	 */
-	public function or_where_not_in($key, array $values, $escape = NULL)
+	public function or_where_not_in($key, $values, $escape = NULL)
 	{
+        if (!is_array($values)){
+            $values = array($values);
+        }
 		return $this->_wh_in('qb_where', $key, $values, TRUE, 'OR ', $escape);
 	}
 
