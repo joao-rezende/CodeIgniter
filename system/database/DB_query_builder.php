@@ -67,6 +67,13 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 	protected $reset_delete_data		= FALSE;
 
 	/**
+	 * QB CTE data
+	 *
+	 * @var	array
+	 */
+	protected $qb_cte			= array();
+
+	/**
 	 * QB SELECT data
 	 *
 	 * @var	array
@@ -309,6 +316,27 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 				}
 			}
 		}
+
+		return $this;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Select
+	 *
+	 * Generates the WITH (CTE) portion of the query
+	 *
+	 * @param	string
+	 * @param	string
+	 * @param	mixed
+	 * @return	CI_DB_query_builder
+	 */
+	public function with($query, $alias)
+	{
+		$query = trim($query);
+
+		if (!empty($query)) $this->qb_cte[] = (object) ["query" => $query, "alias" => $alias];
 
 		return $this;
 	}
@@ -720,7 +748,8 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 	 */
 	public function where_in($key, $values, $escape = NULL)
 	{
-        if (!is_array($values)){
+        if (!is_array($values))
+		{
             $values = array($values);
         }
 		return $this->_wh_in('qb_where', $key, $values, FALSE, 'AND ', $escape);
@@ -741,7 +770,8 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 	 */
 	public function or_where_in($key, $values, $escape = NULL)
 	{
-        if (!is_array($values)){
+        if (!is_array($values))
+		{
             $values = array($values);
         }
 		return $this->_wh_in('qb_where', $key, $values, FALSE, 'OR ', $escape);
@@ -762,7 +792,8 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 	 */
 	public function where_not_in($key, $values, $escape = NULL)
 	{
-        if (!is_array($values)){
+        if (!is_array($values))
+		{
             $values = array($values);
         }
 		return $this->_wh_in('qb_where', $key, $values, TRUE, 'AND ', $escape);
@@ -783,7 +814,8 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 	 */
 	public function or_where_not_in($key, $values, $escape = NULL)
 	{
-        if (!is_array($values)){
+        if (!is_array($values))
+		{
             $values = array($values);
         }
 		return $this->_wh_in('qb_where', $key, $values, TRUE, 'OR ', $escape);
@@ -2404,14 +2436,26 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 		// Combine any cached components with the current statements
 		$this->_merge_cache();
 
+		$sql = "";
+
+		if (count($this->qb_cte) > 0) {
+			$sql .= "WITH ";
+			
+			foreach ($this->qb_cte as $indice => $cte) {
+				if ($indice > 0) $sql .= ",\n";
+				$sql .= $cte->alias . " AS  (" . $cte->query . ")";
+			}
+			$sql .= "\n";
+		}
+
 		// Write the "select" portion of the query
 		if ($select_override !== FALSE)
 		{
-			$sql = $select_override;
+			$sql .= $select_override;
 		}
 		else
 		{
-			$sql = ( ! $this->qb_distinct) ? 'SELECT ' : 'SELECT DISTINCT ';
+			$sql .= ( ! $this->qb_distinct) ? 'SELECT ' : 'SELECT DISTINCT ';
 
 			if (count($this->qb_select) === 0)
 			{
